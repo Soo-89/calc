@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한국 현금 계산기</title>
+    <title>현금 계산기</title>
     <style>
         /* 기본 스타일 */
         body {
@@ -330,17 +330,22 @@
                 const focusedInput = event.target; // 현재 포커스된 input 요소
                 isInputFocused = true; // 포커스 상태 true
 
-                // 1. 총합계 위치 조정 (약간 빠른 타이밍)
-                setTimeout(adjustTotalDisplayPosition, 100);
-
-                // 2. 포커스된 입력 필드로 스크롤 (키보드/위치조정 후 실행되도록 더 긴 지연)
+                // 포커스 시 처리 (setTimeout으로 약간의 지연을 주어 안정성 확보)
                 setTimeout(() => {
-                    // 이 setTimeout이 실행될 때도 여전히 해당 input에 포커스가 있는지 확인
+                    // setTimeout 콜백 실행 시점에도 포커스가 여전히 해당 input에 있는지 확인
                     if (document.activeElement === focusedInput) {
-                        // 입력 필드를 화면 중앙 부근으로 부드럽게 스크롤
-                        focusedInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // 1. 총합계 위치 조정 (키보드 위로)
+                        adjustTotalDisplayPosition();
+
+                        // 2. 입력 필드가 보이도록 즉시 스크롤 (smooth 제거)
+                        // 'center' 옵션으로 요소가 화면 중앙 부근에 오도록 함
+                        focusedInput.scrollIntoView({ block: 'center' }); // behavior: 'auto'가 기본값
+
+                        // 3. 스크롤 직후 총합계 위치 재조정 ★★★
+                        // 스크롤 완료 후 최종 뷰포트 상태에 맞게 totalDisplay 위치를 다시 계산
+                        adjustTotalDisplayPosition();
                     }
-                }, 300); // 키보드 올라오고 총합계 이동 시간 고려
+                }, 100); // 100ms 지연 (필요시 조정 가능)
             });
 
             // 포커스 잃을 때
